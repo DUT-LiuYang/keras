@@ -147,6 +147,12 @@ def _forward(x, reduce_step, initial_states, U, mask=None):
     last, values, _ = K.rnn(_forward_step, inputs, initial_states)
     return last, values
 
+def batch_gather(reference, indices):
+    ref_shape = K.shape(reference)
+    batch_size = ref_shape[0]
+    n_classes = ref_shape[1]
+    flat_indices = K.arange(0, batch_size) * n_classes + K.flatten(indices)
+    return K.gather(K.flatten(reference), flat_indices)
 
 def _backward(gamma, mask):
     '''Backward recurrence of the linear chain crf.'''
@@ -154,7 +160,7 @@ def _backward(gamma, mask):
 
     def _backward_step(gamma_t, states):
         y_tm1 = K.squeeze(states[0], 0)
-        y_t = K.batch_gather(gamma_t, y_tm1)
+        y_t = batch_gather(gamma_t, y_tm1)
         return y_t, [K.expand_dims(y_t, 0)]
 
     initial_states = [K.expand_dims(K.zeros_like(gamma[:, 0, 0]), 0)]
