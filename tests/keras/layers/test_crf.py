@@ -516,6 +516,16 @@ def test_chain_crf_undefined_input_length_dense_labels():
     y = np.eye(n_classes)[y]
     model.train_on_batch(x, y)
 
+@keras_test
+def test_chain_crf_undefined_input_length_dense_labels_batchsize1():
+    vocab_size = 20
+    n_classes = 11
+    model = Sequential()
+    model.add(Embedding(vocab_size, n_classes))
+    layer = crf.ChainCRF()
+    model.add(layer)
+    model.compile(loss=layer.loss, optimizer='sgd')
+
     # Train second mini batch
     batch_size, maxlen = 1, 6
     x = np.random.randint(1, vocab_size, size=(batch_size, maxlen))
@@ -540,6 +550,16 @@ def test_chain_crf_undefined_input_length_sparse_labels():
     y = np.random.randint(n_classes, size=(batch_size, maxlen))
     y = np.expand_dims(y, 2)
     model.train_on_batch(x, y)
+
+@keras_test
+def test_chain_crf_undefined_input_length_sparse_labels_batchsize1():
+    vocab_size = 20
+    n_classes = 11
+    model = Sequential()
+    model.add(Embedding(vocab_size, n_classes))
+    layer = crf.ChainCRF()
+    model.add(layer)
+    model.compile(loss=layer.sparse_loss, optimizer='sgd')
 
     # Train second mini batch
     batch_size, maxlen = 1, 6
